@@ -100,13 +100,22 @@ app.delete("/api_v1/users/:id", (req, res) => {
 app.post("/api_v1/login", (req, res) => {
   const { user, password } = req.body;
   db.get("SELECT * FROM users WHERE User_email = ?", [user], async (err, row) => {
-    if (err) return res.status(500).json({ error: "Query error" });
-    if (!row) return res.status(401).json({ error: "User not found" });
+    if (err) return res.status(500).json({ status:500, error: "Query error" });
+    if (!row) return res.status(401).json({ status:401, error: "User not found" });
     const isMatch = await bcrypt.comparePassword(password, row.User_password);
     if (!isMatch) {
         return res.status(401).json({status:401, message: 'Error password' });
       }
     res.status(200).json({status:200,row});
+  });
+});
+
+app.put("/api_v1/login", (req, res) => {
+  const { email } = req.body;
+  db.get("SELECT * FROM users WHERE User_email = ?", [email], async (err, row) => {
+    if (err) return res.status(500).json({ status:500, error: err.message });
+    if (!row) return res.status(401).json({ status:401, error: "User not found" });
+    res.status(200).json({status:200, email:row.User_email});
   });
 });
 /****************END ROUTES API LOGIN */
