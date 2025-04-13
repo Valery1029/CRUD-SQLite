@@ -1,5 +1,27 @@
+/**
+ * Author:DIEGO CASALLAS
+ * Date:08/04/2024
+ * Descriptions:This is controller class for managing main general
+ * **/
 class Main {
+
+  /**
+   * The constructor function initializes properties for managing a modal form in JavaScript.
+   * @param modalId - The `modalId` parameter is the ID of the modal element that you want to initialize
+   * as a Bootstrap modal.
+   * @param formId - The `formId` parameter in the constructor function refers to the ID of the form
+   * element in the HTML document. This ID is used to select and manipulate the form element within the
+   * JavaScript code.
+   * @param classEdit - The `classEdit` parameter in the constructor function is used to store a CSS
+   * class name that will be used for editing elements in the form. This class name will be applied to
+   * elements within the form to indicate that they are in edit mode.
+   * @param preloadId - The `preloadId` parameter in the constructor function is used to specify the ID
+   * of the element that represents a preloader or loading indicator in the HTML document. This element
+   * is typically displayed while data is being loaded or processed asynchronously to provide feedback to
+   * the user that an operation is in progress.
+   */
   constructor(modalId, formId, classEdit, preloadId) {
+
 
     var arrayModal = [];
     var arrayForm = [];
@@ -21,8 +43,8 @@ class Main {
     } else {
       arrayForm.push(document.getElementById(formId));
     }
-    this.myForm = arrayForm;
 
+    this.myForm = arrayForm;
     this.classEdit = classEdit;
     this.elementJson = {};
     this.fromData = new FormData();
@@ -37,11 +59,33 @@ class Main {
     this.preload.style.display = "block";
   }
 
+
   /**
-   * The `hiddenPreload` function hides the preload element by setting its display style to "none".
+   * The `hiddenPreload` function gradually reduces the opacity of a specified element until it becomes
+   * almost transparent and then hides the element.
    */
   hiddenPreload() {
-    this.preload.style.display = "none";
+    const objPreload = this.preload;
+    var op = 1;  // initial opacity
+    let fadeEffect = setInterval(function () {
+      if (op <= 0.1) {
+        objPreload.style.display = "none";
+        clearInterval(fadeEffect);
+      }
+      objPreload.style.opacity = op;
+      op -= 0.1;
+    }, 100, objPreload);
+  }
+
+  /**
+   * The `setLocationPage` function redirects the user to a new URL after a delay of 1 second.
+   * @param url - The `url` parameter in the `setLocationPage` function is a string that represents the
+   * URL to which you want to navigate after a delay of 1000 milliseconds (1 second).
+   */
+  setLocationPage(url) {
+    setTimeout(() => {
+      window.location.href = url;
+    }, 1000);
   }
 
   /**
@@ -70,6 +114,7 @@ class Main {
    * The function `disabledFormAll` disables all input and select elements within a specified form.
    */
   disabledFormAll(position = 0) {
+
     var elementsInput = this.myForm[position].querySelectorAll('input');
     var elementsSelect = this.myForm[position].querySelectorAll('select');
     for (let i = 0; i < elementsInput.length; i++) {
@@ -358,20 +403,20 @@ class Main {
     }
   }
 
-/**
- * The function `createTable` generates an HTML table based on the provided data, ID, and optional
- * actions.
- * @param data - The `data` parameter in the `createTable` function is an array of objects that
- * contains the information to be displayed in the table. Each object in the array represents a row in
- * the table, and the keys in the object represent the columns.
- * @param id - The `id` parameter in the `createTable` function is used to specify the id of the HTML
- * element where the table will be created. This function dynamically generates a table based on the
- * data provided and populates it within the HTML element identified by the `id` parameter.
- * @param actions - The `actions` parameter in the `createTable` function is a boolean value that
- * determines whether to include action buttons in each row of the table. If `actions` is `true`,
- * action buttons for showing, editing, and deleting the data entry will be added to each row. If
- * `actions
- */
+  /**
+   * The function `createTable` generates an HTML table based on the provided data, with optional actions
+   * for each row.
+   * @param data - The `data` parameter in the `createTable` function is an array of objects. Each object
+   * represents a row of data to be displayed in the table. Each key-value pair in the object represents
+   * a column in the table, where the key is the column name and the value is the data to
+   * @param id - The `id` parameter in the `createTable` function is used to specify the id of the HTML
+   * element where the table will be created. This function dynamically generates a table based on the
+   * data provided and populates it within the HTML element identified by the `id` parameter.
+   * @param actions - The `actions` parameter in the `createTable` function is a boolean value that
+   * determines whether action buttons should be displayed in each row of the table. If `actions` is
+   * `true`, action buttons for showing, editing, and deleting the corresponding row entry will be
+   * included in the table. If
+   */
   createTable(data, id, actions) {
     const objTable = document.getElementById(id);
     objTable.innerHTML = "";
@@ -379,10 +424,10 @@ class Main {
     let tr = "";
     for (let i = 0; i < Object.keys(data).length; i++) {
       let obj = Object.entries(data[i]);
-      tds = `<tr><td>${obj[0][1]}</td>`;
-      tds += `<td>${obj[1][1]}</td>`;
-      tds += `<td>${obj[2][1]}</td>`;
-      
+      tds = "";
+      for (let j = 0; j < obj.length; j++) {
+        tds += `<td>${obj[j][1]}</td>`;
+      }
       if (actions) {
         tds += `<td class="text-center">
 <div class="btn-group" role="group" aria-label="Basic mixed styles example">
@@ -392,9 +437,53 @@ class Main {
 </div>
 </td>`;
       }
-      tr += tds + "</tr>";
+      tr += "<tr>" + tds + "</tr>";
       tds = "";
     }
     objTable.innerHTML = tr;
+    tr = "";
   }
+
+  /**
+   * The function `createSelect` populates a select element with options based on data provided.
+   * @param data - An object containing key-value pairs that will be used to populate the select dropdown
+   * options.
+   * @param id - The `id` parameter is the id of the HTML select element where you want to populate the
+   * options dynamically using the `createSelect` function.
+   */
+  createSelect(data, id) {
+    const objSelect = document.getElementById(id);
+    objSelect.innerHTML = "";
+    let options = '<option selected value="">Open this select menu</option>';
+    for (let i = 0; i < Object.keys(data).length; i++) {
+      let obj = Object.entries(data[i]);
+      options += `<option value="${obj[0][1]}">${obj[1][1]}</option>`;
+    }
+    objSelect.innerHTML = options;
+    options = "";
+  }
+
+  createCard(data, id) {
+    const objContainerCard = document.getElementById(id);
+    objContainerCard.innerHTML = "";
+    let card = "";
+
+    for (let i = 0; i < Object.keys(data).length; i++) {
+      let obj = Object.entries(data[i]);
+
+      card += `<div  style="margin: 0.28em !important;" class="card col-3 mx-auto">
+      <img src="https://t3.ftcdn.net/jpg/06/50/85/90/360_F_650859089_x8aWFsiOw5vpE1h936uAMu7UmXmxPcw2.jpg" class="img img-fluid card-img-top " alt="...">
+      <div class="card-body">
+        <h5 class="card-title">${obj[1][1]}</h5>
+        <p class="card-text">${obj[2][1]}.</p>
+        <p class="card-text">${obj[3][1]}</p>
+        <a href="#" onclick="alert(${obj[0][1]})" class="btn btn-primary">Go somewhere</a>
+      </div>
+    </div>`;
+    
+    }
+    objContainerCard.innerHTML = card;
+    card = "";
+  }
+
 }

@@ -1,125 +1,196 @@
+/* Author:DIEGO CASALLAS
+* Date:20/03/2025
+* Descriptions:This is controller back-end User
+* **/
+/* These lines of code are importing necessary modules and setting up the basic configuration for a
+Node.js application using Express framework. Here's a breakdown: */
 const express = require("express");
-const cors = require("cors");
+const cors = require('cors');
 const db = require("./database");
-const bcrypt = require("./appBcrypt");
+const bcrypt = require('./appBcrypt');
 const app = express();
 const port = 3000;
 
+
+/* The lines `app.use(cors());` and `app.use(express.json());` are setting up middleware in a Node.js
+application using Express framework. */
 app.use(cors());
 app.use(express.json());
 
-/********** ROUTES API ROLES**********/
-app.post('/api_v1/roles', (req, res) => {
-  const { name } = req.body;
-  db.run("INSERT INTO role (Role_name) VALUES (?)", [name], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ id: this.lastID, name });
-  });
+
+/****************ROUTES API ROLES */
+/* This code snippet is setting up a POST endpoint at "/api_v1/roles" in the Node.js application using
+Express framework. When a POST request is made to this endpoint, it expects a JSON object in the
+request body with a property named "name". */
+app.post("/api_v1/roles", (req, res) => {
+    const { name } = req.body;
+    db.run("INSERT INTO role (Role_name) VALUES (?)", [name], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ id: this.lastID, name });
+    });
 });
 
-// Get all role
-app.get('/api_v1/roles', (req, res) => {
-  db.all("SELECT * FROM role", [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows);
-  });
+
+/* This code snippet is setting up a GET endpoint at "/api_v1/roles" in the Node.js application using
+Express framework. When a GET request is made to this endpoint, it queries the database to select
+all records from the "role" table. If there is an error during the database query, it will return a
+500 status with an error message. If the query is successful, it will return a JSON response
+containing the rows retrieved from the database. */
+app.get("/api_v1/roles", (req, res) => {
+    db.all("SELECT * FROM role", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
 });
 
-// Get role by id
-app.get('/api_v1/roles/:id', (req, res) => {
-  db.get("SELECT * FROM role WHERE id = ?", [req.params.id], (err, row) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(row);
-  });
+
+/* This code snippet defines a GET endpoint at "/api_v1/roles/:id" in the Node.js application using
+Express framework. When a GET request is made to this endpoint with a specific role ID parameter, it
+queries the database to select a specific record from the "role" table based on the Role_id matching
+the provided ID parameter. */
+app.get("/api_v1/roles/:id", (req, res) => {
+    db.get("SELECT Role_id, Role_name AS name FROM role WHERE Role_id = ?", [req.params.id], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(row);
+    });
 });
 
-// Update role
-app.put('/api_v1/roles/:id', (req, res) => {
-  const { user } = req.body;
-  db.run("UPDATE role SET Role_user = ? WHERE Role_id = ?", [user, req.params.id], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ updated: this.changes });
-  });
+
+/* This code snippet is setting up a PUT endpoint at "/api_v1/roles/:id" in the Node.js application
+using Express framework. When a PUT request is made to this endpoint with a specific role ID
+parameter, it expects a JSON object in the request body with a property named "user". */
+app.put("/api_v1/roles/:id", (req, res) => {
+    const { name } = req.body;
+    db.run("UPDATE role SET Role_name = ? WHERE Role_id = ?", [name, req.params.id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ updated: this.changes });
+    });
 });
 
-// Delete role
-app.delete('/api_v1/roles/:id', (req, res) => {
-  db.run("DELETE FROM role WHERE Role_id = ?", [req.params.id], function(err) {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ deleted: this.changes });
-  });
+
+/* This code snippet is setting up a DELETE endpoint at "/api_v1/roles/:id" in the Node.js application
+using Express framework. When a DELETE request is made to this endpoint with a specific role ID
+parameter, it executes a SQL DELETE query to remove a specific record from the "role" table based on
+the Role_id matching the provided ID parameter. */
+app.delete("/api_v1/roles/:id", (req, res) => {
+    db.run("DELETE FROM role WHERE Role_id = ?", [req.params.id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ deleted: this.changes });
+    });
 });
 
-/**********END ROUTES API ROLES**********/
-/**********ROUTES API USERS**********/
-// POST
+/****************END ROUTES API ROLES */
+
+/****************ROUTES API USERS */
+/* The code snippet `app.post("/api_v1/users", (req, res) => { ... }` is setting up a POST endpoint at
+"/api_v1/users" in the Node.js application using Express framework. When a POST request is made to
+this endpoint, it expects a JSON object in the request body with properties named "user",
+"password", and "role". */
 app.post("/api_v1/users", async (req, res) => {
-  const {user, password, role} = req.body;
-  const hashedPassword = await bcrypt.encryptPassword(password);
-  db.run("INSERT INTO users (User_email, User_password, Role_fk) VALUES (?, ?, ?)", [user, hashedPassword, role], function (err) {
-    if (err) return res.status(500).json({error: err.message});
-    res.json({id: this.lastID, user, hashedPassword, role});
-  });
+    const { user, password, role } = req.body;
+    const hashedPassword = await bcrypt.encryptPassword(password);
+    db.run("INSERT INTO users (User_email,User_password,Role_fk) VALUES (?,?,?)", [user, hashedPassword, role], function (err) {
+        if (err) return res.status(500).json({status:500, error: err.message });
+        res.json({ id: this.lastID, user, hashedPassword, role });
+    });
 });
 
-// GET
+
+/* The code snippet `app.get("/api_v1/users", (req, res) => { ... }` is setting up a GET endpoint at
+"/api_v1/users" in the Node.js application using Express framework. */
 app.get("/api_v1/users", (req, res) => {
-  db.all("SELECT * FROM users", [], (err, rows) => {
-    if (err) return res.status(500).json({error: err.message});
-    res.json(rows);
-  });
+    db.all("SELECT User_id,User_email AS user,User_password AS password,RL.Role_name AS role " 
+        +"FROM users AS US INNER JOIN role AS RL ON US.Role_fk=RL.Role_id", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
 });
-
-// GET BY ID
+/* This code snippet defines a GET endpoint at "/api_v1/users/:id" in the Node.js application using
+Express framework. When a GET request is made to this endpoint with a specific user ID parameter, it
+queries the database to select a specific record from the "users" table based on the User_id
+matching the provided ID parameter. If there is an error during the database query, it will return a
+500 status with an error message. If the query is successful, it will return a JSON response
+containing the user record retrieved from the database. */
 app.get("/api_v1/users/:id", (req, res) => {
-  db.get("SELECT * FROM users WHERE User_id = ?", [req.params.id], (err, row) => {
-    if (err) return res.status(500).json({error: err.message});
-    res.json(row);
-  });
+    db.get("SELECT User_id,User_email AS user,User_password AS password,Role_fk AS role "
+        +"FROM users WHERE User_id = ?", [req.params.id], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(row);
+    });
 });
 
-// PUT
+/* The code snippet `app.put("/api_v1/users/:id", (req, res) => { ... }` is setting up a PUT endpoint
+at "/api_v1/users/:id" in the Node.js application using Express framework. */
 app.put("/api_v1/users/:id", (req, res) => {
-  const {user, role} = req.body;
-  db.run("UPDATE users SET User_email = ?, Role_fk = ? WHERE User_id = ?", [user, role, req.params.id], function (err) {
-    if (err) return res.status(500).json({error: err.message});
-    res.json({updated: this.changes});
-  });
+    const { user, role } = req.body;
+    db.run("UPDATE users SET User_email = ?,Role_fk=? WHERE User_id = ?", [user, role, req.params.id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ updated: this.changes });
+    });
 });
-
-// DELETE
+/* The code snippet `app.delete("/api_v1/users/:id", ...)` is setting up a DELETE endpoint at
+"/api_v1/users/:id" in the Node.js application using Express framework. When a DELETE request is
+made to this endpoint with a specific user ID parameter, it executes a SQL DELETE query to remove a
+specific record from the "users" table based on the User_id matching the provided ID parameter. */
 app.delete("/api_v1/users/:id", (req, res) => {
-  db.run("DELETE FROM users WHERE User_id = ?", [req.params.id], function (err) {
-    if (err) return res.status(500).json({error: err.message});
-    res.json({deleted: this.changes});
-  });
+    db.run("DELETE FROM users WHERE User_id = ?", [req.params.id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ deleted: this.changes });
+    });
 });
-/********** END ROUTES API USERS**********/
+/* The code snippet `app.get("/api_v1/usersRoles", ...)` is setting up a GET endpoint at
+"/api_v1/usersRoles" in the Node.js application using Express framework. When a GET request is made
+to this endpoint, it executes a SQL query that joins the "users" and "role" tables based on the Role
+foreign key relationship. It then groups the results by Role and counts the number of occurrences
+for each role. Finally, it returns a JSON response containing the role names and their corresponding
+counts. */
+app.get("/api_v1/usersRoles",(req, res) => {
+    db.all("SELECT RL.Role_name AS role, COUNT(*) AS count FROM users AS US INNER JOIN role AS RL ON US.Role_fk=RL.Role_id GROUP BY US.Role_fk", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+/****************END ROUTES API USERS */
 /****************ROUTES API LOGIN */
-
+/* The code snippet `app.post("/api_v1/login", ...)` is setting up a POST endpoint at "/api_v1/login"
+in the Node.js application using Express framework. When a POST request is made to this endpoint, it
+expects a JSON object in the request body with properties named "user" and "password". */
 app.post("/api_v1/login", (req, res) => {
-  const { user, password } = req.body;
-  db.get("SELECT * FROM users WHERE User_email = ?", [user], async (err, row) => {
-    if (err) return res.status(500).json({ status:500, error: "Query error" });
-    if (!row) return res.status(401).json({ status:401, error: "User not found" });
-    const isMatch = await bcrypt.comparePassword(password, row.User_password);
-    if (!isMatch) {
-        return res.status(401).json({status:401, message: 'Error password' });
-      }
-    res.status(200).json({status:200,row});
-  });
-});
+    const { user, password } = req.body;
+    db.get("SELECT * FROM users WHERE User_email = ?", [user], async (err, row) => {
+        if (err) return res.status(500).json({ status:500,error: "Query error" });
+        if (!row) return res.status(401).json({ status:401,error: "User not found" });
+        const isMatch = await bcrypt.comparePassword(password, row.User_password);
+        if (!isMatch) {
+            return res.status(401).json({status:401, message: 'Error password' });
+        }
+        res.status(200).json({status:200,row});
+    });
 
+});
+/* The code snippet `app.put("/api_v1/login", ...)` is setting up a PUT endpoint at "/api_v1/login" in
+the Node.js application using Express framework. When a PUT request is made to this endpoint, it
+expects a JSON object in the request body with a property named "email". */
 app.put("/api_v1/login", (req, res) => {
-  const { email } = req.body;
-  db.get("SELECT * FROM users WHERE User_email = ?", [email], async (err, row) => {
-    if (err) return res.status(500).json({ status:500, error: err.message });
-    if (!row) return res.status(401).json({ status:401, error: "User not found" });
-    res.status(200).json({status:200, email:row.User_email});
-  });
+    const { email } = req.body;
+    db.get("SELECT * FROM users WHERE User_email= ?", [email], function (err,row) {
+        if (err) return res.status(500).json({status:500, error: err.message });
+        if (!row) return res.status(401).json({ status:401,error: "User not found" });
+        //Send email to change password
+        res.status(200).json({status:200,email:row.User_email});
+    });
 });
 /****************END ROUTES API LOGIN */
+/****************ROUTES API HOME */
+app.get("/api_v1/home", (req, res) => {
+    db.all("SELECT User_id,User_email AS user,User_password AS password,RL.Role_name AS role " 
+        +"FROM users AS US INNER JOIN role AS RL ON US.Role_fk=RL.Role_id", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+/****************END ROUTES API HOME */
 
 app.listen(port, () => {
-  console.log(`Server running http://localhost:${port}`);
+    console.log(`Server running http://localhost:${port}`);
 });
