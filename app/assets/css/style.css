@@ -1,5 +1,5 @@
 .message-error {
-  color: red;
+  color: blue;
 }
 .preload {
   position: fixed;
@@ -11,4 +11,10 @@
   z-index: 2000;
   cursor: progress;
   display: none;
+  opacity: 1;
+}
+.dropdown-menu-nav{
+  position: absolute !important;
+  right: 10% !important;
+
 }
