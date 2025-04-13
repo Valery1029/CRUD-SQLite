@@ -63,7 +63,7 @@ function  createCard(data, id) {
     let obj = Object.entries(data[i]);
 
     card += `<div  style="margin: 0.28em !important;" class="card col-3 mx-auto">
-    <img src="https://t3.ftcdn.net/jpg/06/50/85/90/360_F_650859089_x8aWFsiOw5vpE1h936uAMu7UmXmxPcw2.jpg" class="img img-fluid card-img-top " alt="...">
+    <img src="https://i1.wp.com/static.vecteezy.com/system/resources/previews/002/387/693/non_2x/user-profile-icon-free-vector.jpg" class="img img-fluid card-img-top " alt="...">
     <div class="card-body">
       <h5 class="card-title">${obj[1][1]}</h5>
       <p class="card-text">${obj[2][1]}.</p>
